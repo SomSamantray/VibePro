@@ -1,6 +1,6 @@
 {
   "name": "protovibe",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A branded CLI platform layer on top of Claude Code",
   "author": "razorgojo",
   "license": "MIT",
