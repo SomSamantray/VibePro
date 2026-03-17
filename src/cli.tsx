@@ -1,0 +1,122 @@
+import React, { useEffect, useState } from 'react';
+import { Box, Text, useApp } from 'ink';
+import { Logo } from './components/Logo.js';
+import { InfoBox } from './components/InfoBox.js';
+import { isAuthenticated } from './auth.js';
+import { isClaudeInstalled, spawnClaude } from './spawn.js';
+import { scaffoldProject } from './scaffold.js';
+import { confirm } from '@clack/prompts';
+import { spawnSync } from 'child_process';
+
+type Stage =
+  | 'boot'
+  | 'auth-check'
+  | 'auth-prompt'
+  | 'auth-done'
+  | 'claude-check'
+  | 'scaffold';
+
+interface AppProps {
+  terminalWidth: number;
+}
+
+export function App({ terminalWidth }: AppProps) {
+  const { exit } = useApp();
+  const [stage, setStage] = useState<Stage>('boot');
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    if (stage !== 'boot') return;
+    const timer = setTimeout(() => setStage('auth-check'), 80);
+    return () => clearTimeout(timer);
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'auth-check') return;
+    if (isAuthenticated()) {
+      setStage('auth-done');
+    } else {
+      setStage('auth-prompt');
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'auth-prompt') return;
+
+    exit(); // Release Ink so Clack can take over stdin
+
+    (async () => {
+      const shouldLogin = await confirm({
+        message: 'This requires a Claude Code account. Do you want to log in now?',
+      });
+
+      if (!shouldLogin) {
+        process.stdout.write('\nLogin cancelled. Run protovibe again when ready.\n');
+        process.exit(0);
+      }
+
+      process.stdout.write(
+        '\nOpening Claude Code to log you in.\nOnce logged in, type /exit to return to ProtoVibe.\n\n'
+      );
+
+      spawnSync('claude', [], { stdio: 'inherit', shell: true });
+
+      // Re-check after claude exits
+      if (!isAuthenticated()) {
+        process.stderr.write('\n✗ Not logged in. Run protovibe again after logging in.\n');
+        process.exit(1);
+      }
+
+      // Re-render Ink with auth-done state
+      setStage('auth-done');
+    })();
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'auth-done') return;
+    setStage('claude-check');
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'claude-check') return;
+    if (!isClaudeInstalled()) {
+      setError('Claude Code is not found. Please install it from claude.ai/code');
+      return;
+    }
+    setStage('scaffold');
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage !== 'scaffold') return;
+    exit();
+    scaffoldProject().then((projectPath) => {
+      spawnClaude(projectPath);
+    });
+  }, [stage]);
+
+  if (error) {
+    return (
+      <Box flexDirection="column" paddingTop={1}>
+        <Logo terminalWidth={terminalWidth} />
+        <InfoBox />
+        <Box marginTop={1}>
+          <Text color="red">✗ {error}</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Box flexDirection="column" paddingTop={1}>
+      <Logo terminalWidth={terminalWidth} />
+      <InfoBox />
+
+      {(stage === 'auth-done' || stage === 'claude-check' || stage === 'scaffold') && (
+        <Box marginTop={1}>
+          <Text color="#7B2FBE">✓ </Text>
+          <Text color="white">Logged in to Claude Code</Text>
+        </Box>
+      )}
+    </Box>
+  );
+}
