@@ -1,11 +1,13 @@
 import { mkdirSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { homedir } from 'os';
 import * as clack from '@clack/prompts';
 import { CLAUDE_MD } from './templates/CLAUDE.md.js';
 import { PROTOVIBE_MD } from './templates/protovibe.md.js';
 import { TAKEOVER_MD } from './templates/takeover.md.js';
 import { SUMMARISE_MD } from './templates/summarise.md.js';
+import { CLAUDE_ANALYSE_MD } from './templates/CLAUDE-analyse.md.js';
+import { ANALYSE_MD } from './templates/analyse.md.js';
 
 function getSubdirectories(dirPath: string): string[] {
   try {
@@ -61,41 +63,120 @@ async function browseForDirectory(): Promise<string> {
   }
 }
 
-export async function scaffoldProject(): Promise<string> {
-  const projectName = await clack.text({
-    message: 'Project name:',
-    placeholder: 'my-project',
-    validate(value) {
-      if (value.trim() === '/exit') return undefined;
-      if (!value.trim()) return 'Project name is required.';
-      if (/[^a-zA-Z0-9\-_]/.test(value)) return 'Use only letters, numbers, hyphens, and underscores.';
-    },
-  });
-
-  if (clack.isCancel(projectName) || String(projectName).trim() === '/exit') {
-    clack.cancel('Exiting ProtoVibe. See you next time.');
-    process.exit(0);
-  }
-
-  clack.log.info('Select where to create your project:');
-  const parentDir = await browseForDirectory();
-  const targetDir = join(parentDir, String(projectName));
-
-  if (existsSync(targetDir)) {
-    clack.cancel(`Directory already exists: ${targetDir}`);
-    process.exit(1);
-  }
-
-  // Create directory structure
+function writeProtovibeTemplates(targetDir: string): void {
   mkdirSync(join(targetDir, '.claude', 'commands'), { recursive: true });
-
-  // Write files
   writeFileSync(join(targetDir, 'CLAUDE.md'), CLAUDE_MD, 'utf-8');
   writeFileSync(join(targetDir, '.claude', 'commands', 'protovibe.md'), PROTOVIBE_MD, 'utf-8');
   writeFileSync(join(targetDir, '.claude', 'commands', 'takeover.md'), TAKEOVER_MD, 'utf-8');
   writeFileSync(join(targetDir, '.claude', 'commands', 'summarise.md'), SUMMARISE_MD, 'utf-8');
+}
 
-  clack.outro(`✓ Project created at ${targetDir}`);
+function writeAnalyseTemplates(targetDir: string): void {
+  mkdirSync(join(targetDir, '.claude', 'commands'), { recursive: true });
+  writeFileSync(join(targetDir, 'CLAUDE.md'), CLAUDE_ANALYSE_MD, 'utf-8');
+  writeFileSync(join(targetDir, '.claude', 'commands', 'analyse.md'), ANALYSE_MD, 'utf-8');
+}
 
-  return targetDir;
+async function handleExistingProject(): Promise<string> {
+  const rawPath = await clack.text({
+    message: 'Path to your existing project:',
+    placeholder: '/Users/you/my-project',
+    validate(value) {
+      if (!value.trim()) return 'Path is required.';
+      const resolved = resolve(value.trim().replace(/^~/, homedir()));
+      if (!existsSync(resolved)) return 'That path does not exist.';
+      try {
+        if (!statSync(resolved).isDirectory()) return 'That path is not a directory.';
+      } catch {
+        return 'Could not read that path.';
+      }
+    },
+  });
+
+  if (clack.isCancel(rawPath)) {
+    clack.cancel('Exiting ProtoVibe. See you next time.');
+    process.exit(0);
+  }
+
+  const existingPath = resolve(String(rawPath).trim().replace(/^~/, homedir()));
+  writeAnalyseTemplates(existingPath);
+  clack.outro(`✓ Ready to analyse ${existingPath}`);
+  return existingPath;
+}
+
+async function handleNewProject(): Promise<string> {
+  let parentDir: string | null = null;
+
+  while (true) {
+    const nameInput = await clack.text({
+      message: 'Project name:',
+      placeholder: 'my-project',
+      validate(value) {
+        if (value.trim() === '/exit') return undefined;
+        if (!value.trim()) return 'Project name is required.';
+        if (/[^a-zA-Z0-9\-_]/.test(value)) return 'Use only letters, numbers, hyphens, and underscores.';
+      },
+    });
+
+    if (clack.isCancel(nameInput) || String(nameInput).trim() === '/exit') {
+      clack.cancel('Exiting ProtoVibe. See you next time.');
+      process.exit(0);
+    }
+
+    if (parentDir === null) {
+      clack.log.info('Select where to create your project:');
+      parentDir = await browseForDirectory();
+    }
+
+    const targetDir = join(parentDir, String(nameInput).trim());
+
+    if (!existsSync(targetDir)) {
+      writeProtovibeTemplates(targetDir);
+      clack.outro(`✓ Project created at ${targetDir}`);
+      return targetDir;
+    }
+
+    clack.log.error(`A project named '${String(nameInput).trim()}' already exists at this location.`);
+
+    const conflictChoice = await clack.select({
+      message: 'What would you like to do?',
+      options: [
+        { value: 'rename', label: 'Choose a different name for my new project' },
+        { value: 'continue', label: 'Continue with the existing project' },
+      ],
+    });
+
+    if (clack.isCancel(conflictChoice)) {
+      clack.cancel('Exiting ProtoVibe. See you next time.');
+      process.exit(0);
+    }
+
+    if (conflictChoice === 'continue') {
+      writeProtovibeTemplates(targetDir);
+      clack.outro(`✓ Ready to continue at ${targetDir}`);
+      return targetDir;
+    }
+    // 'rename' → loop, re-ask name, keep parentDir
+  }
+}
+
+export async function scaffoldProject(): Promise<string> {
+  const modeChoice = await clack.select({
+    message: 'What would you like to do?',
+    options: [
+      { value: 'new', label: 'Start a new project' },
+      { value: 'existing', label: 'Continue with an existing project' },
+    ],
+  });
+
+  if (clack.isCancel(modeChoice)) {
+    clack.cancel('Exiting ProtoVibe. See you next time.');
+    process.exit(0);
+  }
+
+  if (modeChoice === 'existing') {
+    return handleExistingProject();
+  }
+
+  return handleNewProject();
 }
