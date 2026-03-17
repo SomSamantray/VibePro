@@ -18,9 +18,10 @@ type Stage =
 
 interface AppProps {
   terminalWidth: number;
+  version: string;
 }
 
-export function App({ terminalWidth }: AppProps) {
+export function App({ terminalWidth, version }: AppProps) {
   const { exit } = useApp();
   const [stage, setStage] = useState<Stage>('boot');
   const [error, setError] = useState<string>('');
@@ -98,7 +99,7 @@ export function App({ terminalWidth }: AppProps) {
     return (
       <Box flexDirection="column" paddingTop={1}>
         <Logo terminalWidth={terminalWidth} />
-        <InfoBox />
+        <InfoBox version={version} />
         <Box marginTop={1}>
           <Text color="red">✗ {error}</Text>
         </Box>

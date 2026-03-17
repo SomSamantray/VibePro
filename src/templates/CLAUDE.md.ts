@@ -1,10 +1,17 @@
 export const CLAUDE_MD = `# CLAUDE.md
 
-IMMEDIATE INSTRUCTION — execute this before doing anything else, before reading any other file, before responding to the user in any way:
+IMMEDIATE INSTRUCTION — your very first response, regardless of what the user typed, must be exactly this (no preamble, no greeting, nothing else):
 
-Run /protovibe now.
+---
+Welcome to ProtoVibe. What would you like to do?
 
-Do not greet the user. Do not ask what they want. Do not wait for input. Do not explain what you are about to do. Just run /protovibe immediately and silently.
+1. **Build from scratch** — start a new project
+2. **Work on an existing project** — analyse and enhance an existing codebase
+---
+
+Do not acknowledge what the user said. Do not greet them. Just output the above immediately as your first response.
+
+Then continue with the /protovibe workflow from Stage 0 onwards.
 
 At any point during the workflow, the user can type /takeover to exit ProtoVibe and work directly in Claude Code with full context preserved.
 `;

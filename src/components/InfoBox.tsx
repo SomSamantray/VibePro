@@ -16,7 +16,7 @@ function BorderLine({ char }: { char: string }) {
   );
 }
 
-export function InfoBox() {
+export function InfoBox({ version }: { version: string }) {
   const separator = '─'.repeat(WIDTH);
 
   return (
@@ -24,7 +24,7 @@ export function InfoBox() {
       <Text color="#3a1a6a">{'╭' + '─'.repeat(WIDTH) + '╮'}</Text>
 
       {/* version */}
-      <Text color="#3a1a6a">│<Text color="#b39ddb">  version  </Text><Text color="#ffffff">1.0.0</Text>{' '.repeat(WIDTH - 17)}│</Text>
+      <Text color="#3a1a6a">│<Text color="#b39ddb">  version  </Text><Text color="#ffffff">{version}</Text>{' '.repeat(WIDTH - 12 - version.length)}│</Text>
 
       {/* by */}
       <Text color="#3a1a6a">│<Text color="#b39ddb">  by  </Text><Text color="#ffffff">razorgojo</Text>{' '.repeat(WIDTH - 15)}│</Text>
