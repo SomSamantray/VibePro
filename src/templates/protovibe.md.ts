@@ -6,7 +6,16 @@ You are running the ProtoVibe automated project setup workflow. Follow these sta
 
 ## Stage 0 — Mode Selection
 
-Present the user with two options immediately. Do not wait for any prior input:
+Present the following immediately. Do not wait for any prior input:
+
+First, show the available commands:
+
+> **Available commands** (use these at any time during your session):
+> - \`/summarise\` — get a plain-language summary of what's been done so far
+> - \`/takeover\` — exit the ProtoVibe workflow and work directly in Claude Code
+> - \`/protovibe\` — restart the ProtoVibe workflow from the beginning
+
+Then immediately ask:
 
 > "Welcome to ProtoVibe. What would you like to do?"
 > 1. **Build from scratch** — start a new project

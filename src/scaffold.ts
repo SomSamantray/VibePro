@@ -5,6 +5,7 @@ import * as clack from '@clack/prompts';
 import { CLAUDE_MD } from './templates/CLAUDE.md.js';
 import { PROTOVIBE_MD } from './templates/protovibe.md.js';
 import { TAKEOVER_MD } from './templates/takeover.md.js';
+import { SUMMARISE_MD } from './templates/summarise.md.js';
 
 function getSubdirectories(dirPath: string): string[] {
   try {
@@ -31,6 +32,7 @@ async function browseForDirectory(): Promise<string> {
     const isRoot = dirname(currentPath) === currentPath;
 
     const options: { value: string; label: string }[] = [
+      { value: '__exit__', label: '⎋  Exit ProtoVibe' },
       { value: '__select__', label: `✓  Use this folder — ${currentPath}` },
       ...(!isRoot ? [{ value: '__up__', label: '↑  Go up' }] : []),
       ...subdirs.map(dir => ({ value: join(currentPath, dir), label: `📁  ${dir}` })),
@@ -46,7 +48,10 @@ async function browseForDirectory(): Promise<string> {
       process.exit(0);
     }
 
-    if (choice === '__select__') {
+    if (choice === '__exit__') {
+      clack.cancel('Exiting ProtoVibe. See you next time.');
+      process.exit(0);
+    } else if (choice === '__select__') {
       return currentPath;
     } else if (choice === '__up__') {
       currentPath = dirname(currentPath);
@@ -61,13 +66,14 @@ export async function scaffoldProject(): Promise<string> {
     message: 'Project name:',
     placeholder: 'my-project',
     validate(value) {
+      if (value.trim() === '/exit') return undefined;
       if (!value.trim()) return 'Project name is required.';
       if (/[^a-zA-Z0-9\-_]/.test(value)) return 'Use only letters, numbers, hyphens, and underscores.';
     },
   });
 
-  if (clack.isCancel(projectName)) {
-    clack.cancel('Cancelled.');
+  if (clack.isCancel(projectName) || String(projectName).trim() === '/exit') {
+    clack.cancel('Exiting ProtoVibe. See you next time.');
     process.exit(0);
   }
 
@@ -87,6 +93,7 @@ export async function scaffoldProject(): Promise<string> {
   writeFileSync(join(targetDir, 'CLAUDE.md'), CLAUDE_MD, 'utf-8');
   writeFileSync(join(targetDir, '.claude', 'commands', 'protovibe.md'), PROTOVIBE_MD, 'utf-8');
   writeFileSync(join(targetDir, '.claude', 'commands', 'takeover.md'), TAKEOVER_MD, 'utf-8');
+  writeFileSync(join(targetDir, '.claude', 'commands', 'summarise.md'), SUMMARISE_MD, 'utf-8');
 
   clack.outro(`✓ Project created at ${targetDir}`);
 

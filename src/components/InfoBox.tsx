@@ -38,6 +38,15 @@ export function InfoBox() {
       {/* tagline */}
       <Text color="#3a1a6a">│<Text color="#6d5a8a" italic>  Vibecode your prototypes.</Text>{' '.repeat(WIDTH - 28)}│</Text>
 
+      {/* commands separator */}
+      <Text color="#3a1a6a">{'├' + separator + '┤'}</Text>
+
+      {/* commands label */}
+      <Text color="#3a1a6a">│<Text color="#b39ddb">  commands</Text>{' '.repeat(WIDTH - 11)}│</Text>
+
+      {/* /exit command */}
+      <Text color="#3a1a6a">│<Text color="#ffffff">  /exit</Text><Text color="#6d5a8a">  —  quit ProtoVibe at any time</Text>{' '.repeat(WIDTH - 37)}│</Text>
+
       <Text color="#3a1a6a">{'╰' + '─'.repeat(WIDTH) + '╯'}</Text>
     </Box>
   );
