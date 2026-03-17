@@ -38,19 +38,19 @@ ProtoVibe is a CLI tool and **must be installed globally** to work:
 npm install -g protovibe
 ```
 
-> **Note:** The npm page shows `npm i protovibe` but that is a local install — the `protovibe` command will not be found. Always use the `-g` flag.
+> **Note:** The npm page shows `npm i protovibe` — that is a local install and the `protovibe` command will not be found. Always use the `-g` flag.
 
 ProtoVibe checks for newer versions on every run and updates itself automatically. You only ever need to install it once.
 
 ### No install? Use npx
 
-If you don't want a global install, you can run ProtoVibe directly with npx from any directory:
+Run ProtoVibe directly from any directory without a permanent install:
 
 ```bash
 npx protovibe
 ```
 
-This always runs the latest version without installing anything permanently.
+This always fetches and runs the latest version on the fly.
 
 ---
 
@@ -145,28 +145,43 @@ Choose **1** to begin:
 Claude asks: *"Describe the idea for your project."*
 Speak naturally. No format required.
 
-### Stage 2 — Deep Requirements Probing
-Claude asks grouped questions covering:
-- Who are the target users?
-- What does each feature do exactly?
-- Step-by-step user flow
-- Platform (web, mobile, desktop, CLI)?
-- Authentication — required? What type?
-- Data — what's created, stored, deleted? Real-time?
-- Third-party integrations?
-- Constraints — performance, offline, accessibility, timeline?
+### Stage 2 — Interactive Requirements Probing
 
-Claude keeps probing until everything is clear. Then it presents a full structured summary and asks you to confirm before moving on.
+Claude first silently analyses your idea, then asks requirements questions as **interactive cards** — you click an option or type your own. No long-form typing required.
+
+Questions are asked in 3 batches:
+
+**Batch 1 — Core context**
+- Who are the primary users?
+- What platform is this for? *(Web, Mobile, Desktop, CLI)*
+- Is user authentication required?
+- How would you describe the scale at launch?
+
+**Batch 2 — Features & data**
+- What data does this app create or store? *(multi-select)*
+- Any third-party integrations needed? *(multi-select)*
+- Does the app need real-time features?
+
+**Batch 3 — Constraints**
+- Do you have a preferred tech stack?
+- What is your timeline for an MVP?
+- Any specific requirements? *(multi-select)*
+
+Options are generated from your idea — not generic defaults. Each question has a recommended answer and an "Other" option to type anything.
+
+If anything is still unclear after your answers, Claude asks targeted follow-up questions the same way. Then it presents a full structured summary and asks you to confirm before moving on.
 
 ### Stage 3 — Architecture Options
+
 Claude proposes **3 distinct architectural approaches**, each with:
 - Full tech stack (frontend, backend, database, auth, hosting)
 - How the system works end-to-end
 - Tradeoffs — what it's best for and what it sacrifices
-- One option marked **Recommended** with a specific reason
+
+Then presents them as **clickable cards** — pick one, or choose "Custom approach" to describe your own. The recommended option is labeled clearly.
 
 ### Stage 4 — Option Confirmation
-Pick one of the 3 options, or describe your own. If you go custom, Claude evaluates it against your requirements and flags any risks before proceeding.
+If you pick a custom approach, Claude evaluates it against your requirements and flags any risks before proceeding.
 
 ### Stage 5 — Specs File
 Claude asks for confirmation, then writes `specs.md` in your project root containing:
@@ -194,7 +209,7 @@ These are available at any time inside Claude Code during or after the workflow:
 
 | Command | What it does |
 |---|---|
-| `/takeover` | Exit the ProtoVibe workflow. Claude summarises everything captured so far (idea, requirements, architecture, files created) and then works normally with no constraints. |
+| `/takeover` | Exit the ProtoVibe workflow. Claude summarises everything captured so far and works normally with no constraints. |
 | `/summarise` | Plain-language summary of progress — what's been decided, what's been done, and what comes next. Capped at 10 bullets. |
 | `/protovibe` | Restart the workflow from Stage 0. |
 
