@@ -7,6 +7,33 @@ import { isClaudeInstalled, spawnClaude } from './spawn.js';
 import { scaffoldProject } from './scaffold.js';
 import { confirm } from '@clack/prompts';
 import { spawnSync } from 'child_process';
+import chalk from 'chalk';
+
+function printLaunchBox(): void {
+  const W = 42;
+  const border = (s: string) => chalk.hex('#3a1a6a')(s);
+  const accent = (s: string) => chalk.hex('#b39ddb')(s);
+
+  const row = (text: string, visibleLen: number) =>
+    border('│') + text + ' '.repeat(Math.max(0, W - visibleLen)) + border('│');
+
+  const lines = [
+    '',
+    border('╭' + '─'.repeat(W) + '╮'),
+    row('', 0),
+    row('  ' + chalk.white('Claude Code is loading your project.'), 38),
+    row('', 0),
+    row(
+      '  Type ' + accent('"Hello"') + ' or ' + accent('"What\'s up?"') + ' to begin.',
+      40
+    ),
+    row('', 0),
+    border('╰' + '─'.repeat(W) + '╯'),
+    '',
+  ];
+
+  process.stdout.write(lines.join('\n') + '\n');
+}
 
 type Stage =
   | 'boot'
@@ -91,6 +118,7 @@ export function App({ terminalWidth, version }: AppProps) {
     if (stage !== 'scaffold') return;
     exit();
     scaffoldProject().then((projectPath) => {
+      printLaunchBox();
       spawnClaude(projectPath);
     });
   }, [stage]);
