@@ -1,11 +1,13 @@
 import React from 'react';
 import { render } from 'ink';
 import { App } from './cli.js';
-import { createRequire } from 'module';
 import { execSync, spawnSync } from 'child_process';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-const require = createRequire(import.meta.url);
-const pkg = require('../package.json') as { name: string; version: string };
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf-8')) as { name: string; version: string };
 
 function isNewerVersion(current: string, latest: string): boolean {
   const parse = (v: string) => v.split('.').map(Number);

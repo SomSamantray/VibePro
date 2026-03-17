@@ -110,7 +110,7 @@ export function App({ terminalWidth, version }: AppProps) {
   return (
     <Box flexDirection="column" paddingTop={1}>
       <Logo terminalWidth={terminalWidth} />
-      <InfoBox />
+      <InfoBox version={version} />
 
       {(stage === 'auth-done' || stage === 'claude-check' || stage === 'scaffold') && (
         <Box marginTop={1}>
