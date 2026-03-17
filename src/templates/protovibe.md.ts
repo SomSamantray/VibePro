@@ -6,7 +6,7 @@ You are running the ProtoVibe automated project setup workflow. Follow these sta
 
 ## Stage 0 — Mode Selection
 
-Present the user with two options:
+Present the user with two options immediately. Do not wait for any prior input:
 
 > "Welcome to ProtoVibe. What would you like to do?"
 > 1. **Build from scratch** — start a new project
@@ -60,31 +60,41 @@ Wait for a free-text response. Accept anything. Do not proceed until you have an
 
 ## Stage 2 — Deep Requirements Probing
 
-Ask follow-up questions **one at a time**. Each question must be directly informed by all previous answers. Never ask about something already covered.
+Your goal is to achieve complete, end-to-end clarity on this product before moving on. You must fully understand the user flow, product requirements, and all edge cases — with zero ambiguity.
 
-You must reach complete, unambiguous clarity on all of the following before moving on:
-- **Who** are the target users? (be specific — not just "everyone")
-- **What** does each core feature actually do? (behavior, not just names)
-- **Platform** — web, mobile, desktop, CLI, or multiple?
-- **Auth** — is user login required? If yes, what type?
-- **Data** — what data is created, stored, read? Any real-time requirements?
-- **Integrations** — any third-party services, APIs, or existing systems?
-- **Constraints** — performance, offline support, team size, timeline, existing tech choices?
+**How to probe:**
 
-**There is no question limit.** Keep probing until you have zero unanswered questions. Do not summarize until everything is fully clear.
+Ask your questions in **grouped batches** — not one at a time. Group related questions together so the user can answer them in one response. After receiving answers, analyse them carefully. If anything is still unclear, incomplete, or raises new questions, ask a follow-up batch. Repeat until you have full clarity.
 
-When you are confident nothing is ambiguous, present a complete structured summary:
+You must cover all of the following — do not move on until every point is resolved:
+
+- **Who** are the target users? (be specific — demographics, roles, technical level)
+- **What** does each core feature actually do? (exact behavior, not just feature names)
+- **User Flow** — how does a user move through the product from first open to completing each core action? Walk through every key path.
+- **Platform** — web, mobile, desktop, CLI, or multiple? Any specific device or OS constraints?
+- **Auth** — is login required? What type? (email, social, SSO?) Any roles or permission levels?
+- **Data** — what data is created, stored, read, or deleted? Any real-time or sync requirements?
+- **Integrations** — any third-party services, APIs, payment systems, or external tools?
+- **Constraints** — performance targets, offline support, accessibility needs, team size, timeline, existing tech choices the user wants to keep?
+- **Edge cases** — what happens when things go wrong? Any critical failure states to handle?
+
+**There is no question limit.** If the user's answers raise new questions, ask them. Keep going until you have the full picture.
+
+When you are confident everything is fully clear, present a complete structured summary:
 
 ---
 **Project:** [name]
-**Users:** [specific description]
+**Type:** [web app / mobile app / desktop app / CLI tool / etc.]
+**Target Users:** [specific description]
+**Summary:** [2–3 sentences describing what the app does and the problem it solves]
 **Core Features:**
-[bulleted list — each with a one-line description of its behavior]
-**Platform:** [web / mobile / desktop / CLI]
-**Auth:** [yes/no and type]
-**Data & Storage:** [summary]
-**Integrations:** [summary]
-**Constraints:** [summary]
+[bulleted list — each feature with a precise one-line description of its behavior]
+**User Flow:** [step-by-step walkthrough of the primary user journey]
+**Platform:** [web / mobile / desktop / CLI — with any specific constraints]
+**Auth:** [yes/no, type, roles if any]
+**Data & Storage:** [what data exists, how it's stored, any real-time needs]
+**Integrations:** [third-party services and how they connect]
+**Constraints & Requirements:** [all hard constraints, performance targets, non-negotiables]
 ---
 
 Then ask: "Does this capture everything? Confirm to continue."
@@ -132,13 +142,21 @@ Ask the user:
 
 Wait for confirmation. Do not create the file without it.
 
-On confirmation, write **specs.md** in the current working directory. It must contain:
-- **Tech Stack** — chosen stack with a one-line justification for each major choice
-- **User Flow** — step-by-step description of how a user moves through the app from first open to completing a core action
-- **Feature List** — all features with priority labels (P0 = must have for MVP, P1 = important but not blocking, P2 = nice to have)
-- **Data Model** — key entities, their fields, and relationships
-- **Integration Notes** — any third-party services and how they connect
-- **Constraints & NFRs** — performance targets, platform requirements, any hard constraints
+On confirmation, write **specs.md** in the current working directory. It must be detailed but concise — every section should give enough information to build from, without padding. Include the following:
+
+- **App Overview** — what the app is, what problem it solves, and what type of app it is (web, mobile, CLI, etc.)
+- **Target Audience** — who the users are, their roles, technical level, and any relevant context
+- **Summary** — a short paragraph (3–5 sentences) describing what the app does end-to-end
+- **App Features** — full list of features with priority labels:
+  - P0 = must have for MVP
+  - P1 = important but not blocking launch
+  - P2 = nice to have / future iteration
+  Each feature should include a one-line description of its exact behavior.
+- **Complete User Flow** — step-by-step walkthrough of every key user journey, from first open through all core actions. Cover the primary flow and any critical alternate paths.
+- **Tech Stack** — chosen stack with a one-line justification for each major technology choice
+- **Data Model** — key entities, their fields, types, and relationships
+- **Integration Notes** — any third-party services, APIs, or external tools and how they connect
+- **Additional Requirements** — any extra constraints, performance targets, accessibility needs, non-functional requirements, or specific details the user provided that don't fit above
 
 After writing, tell the user:
 
@@ -153,6 +171,8 @@ Without asking the user, do the following in order:
 1. Delete the existing CLAUDE.md file in the current directory
 2. Run /init — this will analyze the project (including specs.md) and generate a new, project-aware CLAUDE.md
 
+The generated CLAUDE.md must contain full, detailed context to help Claude with all future development on this project. /init should produce a CLAUDE.md that includes: the project purpose and scope, the full tech stack with reasoning, the architecture overview, key entities and data relationships, the complete feature set, user flow summary, coding conventions and patterns to follow, known constraints, and any integration details. It should be a complete reference document — not a summary.
+
 After /init completes, confirm:
 
 > "CLAUDE.md ✓ — your project is initialized."
@@ -165,9 +185,13 @@ Do not mention the deletion to the user. Do not ask permission. Just do it silen
 
 Tell the user:
 
-> "You can now go for building out the code."
+> "Your project is fully scoped and ready to build."
+>
+> "Type **Build it** to start building, or ask me anything about the project first."
 
-Stop all automation. From this point forward, respond only to direct user requests. The ProtoVibe workflow is complete.
+Wait for the user to type "Build it" (or a clear equivalent). Do not start writing any code until they do.
+
+Once they confirm, begin building the project according to the specs.md and CLAUDE.md. Work systematically through the P0 features first.
 
 ---
 
