@@ -32,11 +32,25 @@ Before installing ProtoVibe, make sure you have:
 
 ## Install
 
+ProtoVibe is a CLI tool and **must be installed globally** to work:
+
 ```bash
 npm install -g protovibe
 ```
 
+> **Note:** The npm page shows `npm i protovibe` but that is a local install — the `protovibe` command will not be found. Always use the `-g` flag.
+
 ProtoVibe checks for newer versions on every run and updates itself automatically. You only ever need to install it once.
+
+### No install? Use npx
+
+If you don't want a global install, you can run ProtoVibe directly with npx from any directory:
+
+```bash
+npx protovibe
+```
+
+This always runs the latest version without installing anything permanently.
 
 ---
 
