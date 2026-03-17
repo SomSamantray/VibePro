@@ -73,21 +73,29 @@ Your goal is to achieve complete, end-to-end clarity on this product before movi
 
 **How to probe:**
 
-Ask your questions in **grouped batches** — not one at a time. Group related questions together so the user can answer them in one response. After receiving answers, analyse them carefully. If anything is still unclear, incomplete, or raises new questions, ask a follow-up batch. Repeat until you have full clarity.
+First, silently analyse the user's idea thoroughly. Identify the most likely platform, user type, auth needs, data requirements, and integrations based on what they described. Use this analysis to generate smart, contextual options for each question — options should reflect what makes sense for their specific idea, not generic defaults.
 
-You must cover all of the following — do not move on until every point is resolved:
+Then ask your questions using the **AskUserQuestion tool** in 3 batches. Do not ask as plain text lists — always use the tool so the user can click options or type their own answer.
 
-- **Who** are the target users? (be specific — demographics, roles, technical level)
-- **What** does each core feature actually do? (exact behavior, not just feature names)
-- **User Flow** — how does a user move through the product from first open to completing each core action? Walk through every key path.
-- **Platform** — web, mobile, desktop, CLI, or multiple? Any specific device or OS constraints?
-- **Auth** — is login required? What type? (email, social, SSO?) Any roles or permission levels?
-- **Data** — what data is created, stored, read, or deleted? Any real-time or sync requirements?
-- **Integrations** — any third-party services, APIs, payment systems, or external tools?
-- **Constraints** — performance targets, offline support, accessibility needs, team size, timeline, existing tech choices the user wants to keep?
-- **Edge cases** — what happens when things go wrong? Any critical failure states to handle?
+**Batch 1 — Core context** (call AskUserQuestion with 4 questions):
+1. "Who are the primary users?" — generate 3 specific, idea-relevant options (e.g. "Freelance designers", "Small business owners", "Developer teams") — user can type their own via Other
+2. "What platform is this for?" — options: Web app, Mobile app (iOS/Android), Desktop app, CLI tool — mark the most likely one as recommended based on the idea
+3. "Is user authentication required?" — options: Yes – email & password, Yes – social login (Google/GitHub/etc.), No login needed, Multiple auth methods
+4. "How would you describe the scale at launch?" — options: Personal / side project, Small team (under 20 users), Public product (hundreds of users), Enterprise / large scale
 
-**There is no question limit.** If the user's answers raise new questions, ask them. Keep going until you have the full picture.
+**Batch 2 — Features & data** (call AskUserQuestion with 3 questions):
+1. "What data does this app create or store?" — generate 3–4 idea-relevant options (e.g. "User profiles & preferences", "Files or media uploads", "Transactions or records", "Posts or content") — use multiSelect: true
+2. "Any third-party integrations needed?" — generate idea-relevant options (e.g. "Stripe – payments", "SendGrid – email", "OpenAI – AI features", "None for now") — use multiSelect: true
+3. "Does the app need real-time features?" — options: Yes – live updates or notifications, Yes – real-time collaboration, No – standard request/response is fine, Not sure yet
+
+**Batch 3 — Constraints** (call AskUserQuestion with 3 questions):
+1. "Do you have a preferred tech stack?" — generate 3 idea-appropriate stack options (e.g. "Next.js full-stack", "React + Node.js", "Python + FastAPI") + "No preference – recommend something" marked as recommended
+2. "What is your timeline for an MVP?" — options: ASAP / this week, 2–4 weeks, 1–3 months, No hard deadline
+3. "Any specific requirements?" — options: Offline support needed, Accessibility (WCAG) required, Mobile-first design, None of these — use multiSelect: true
+
+After collecting all answers, analyse them carefully. If any critical area is still unclear (feature behaviour, user flow details, edge cases), call AskUserQuestion again with targeted follow-up questions. Keep going until you have the full picture — there is no question limit.
+
+**There is no question limit.** If the user's answers raise new questions, use AskUserQuestion again. Keep going until you have full clarity.
 
 When you are confident everything is fully clear, present a complete structured summary:
 
@@ -124,9 +132,13 @@ Analyze the confirmed requirements carefully. Propose exactly **3 distinct archi
 
 After presenting all 3, clearly mark one as **Recommended** and explain specifically why it fits this user's requirements better than the others.
 
-Then ask:
+Then call **AskUserQuestion** with a single question:
 
-> "Which option would you like to go with? You can pick one of the above, or describe your own approach."
+- Question: "Which architecture would you like to go with?"
+- Option 1: label = name of Option 1, description = one-line stack summary
+- Option 2: label = name of Option 2, description = one-line stack summary
+- Option 3: label = name of Option 3 + " (Recommended)", description = one-line stack summary + the specific reason it's recommended
+- Option 4: label = "Custom approach", description = "Describe your own stack — I'll evaluate it against your requirements"
 
 ---
 
