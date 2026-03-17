@@ -40,6 +40,18 @@ function fetchLatestVersion(): Promise<string | null> {
 }
 
 async function main() {
+  // Guard: detect local install via node_modules in the binary path
+  if (process.argv[1]?.includes('node_modules')) {
+    process.stderr.write(
+      '\n  \u2717 protovibe was installed locally.\n\n' +
+      '  Option 1 \u2014 run it right now:\n' +
+      '    npx protovibe\n\n' +
+      '  Option 2 \u2014 install globally (recommended):\n' +
+      '    npm install -g protovibe\n\n'
+    );
+    process.exit(1);
+  }
+
   if (process.env.PROTOVIBE_UPDATED !== '1') {
     const latest = await fetchLatestVersion();
     if (latest && isNewerVersion(pkg.version, latest)) {
