@@ -57,10 +57,9 @@ async function browseForDirectory(): Promise<string> {
 }
 
 export async function scaffoldProject(): Promise<string> {
-  clack.intro('');
-
   const projectName = await clack.text({
     message: 'Project name:',
+    placeholder: 'my-project',
     validate(value) {
       if (!value.trim()) return 'Project name is required.';
       if (/[^a-zA-Z0-9\-_]/.test(value)) return 'Use only letters, numbers, hyphens, and underscores.';
