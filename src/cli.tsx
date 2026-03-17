@@ -83,11 +83,16 @@ export function App({ terminalWidth, version }: AppProps) {
         process.exit(0);
       }
 
-      process.stdout.write(
-        '\nOpening Claude Code to log you in.\nOnce logged in, type /exit to return to ProtoVibe.\n\n'
-      );
+      process.stdout.write('\n  Opening browser to log you in to Claude Code...\n\n');
+      const loginResult = spawnSync('claude', ['auth', 'login'], { stdio: 'inherit', shell: true });
 
-      spawnSync('claude', [], { stdio: 'inherit', shell: true });
+      // Fallback: if auth login subcommand not recognised, open full TUI
+      if (loginResult.status !== 0 && loginResult.status !== null) {
+        process.stdout.write(
+          '\n  Opening Claude Code to log you in.\n  Once logged in, type /exit to return to ProtoVibe.\n\n'
+        );
+        spawnSync('claude', [], { stdio: 'inherit', shell: true });
+      }
 
       // Re-check after claude exits
       if (!isAuthenticated()) {
