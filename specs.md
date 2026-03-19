@@ -77,7 +77,7 @@ VibePro-CLI/
 
 ### 3. Authentication (`src/auth.ts`)
 **Check if already authenticated:**
-- Read `~/.claude/auth.json` (path Claude Code uses)
+- Read `~/.claude/.credentials.json` (path Claude Code uses)
 - If token/session exists and is non-empty → user is considered authenticated
 - Display: `✓ Logged in`
 

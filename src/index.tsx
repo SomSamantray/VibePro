@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'ink';
 import { App } from './cli.js';
-import { execSync, spawnSync } from 'child_process';
 import { createRequire } from 'module';
 import { get } from 'https';
 
@@ -24,10 +23,25 @@ function fetchLatestVersion(): Promise<string | null> {
       { timeout: 3000 },
       (res) => {
         let data = '';
-        res.on('data', (chunk) => (data += chunk));
+        let size = 0;
+        const MAX_BYTES = 65536; // 64 KB — registry /latest is always < 5 KB
+        res.on('data', (chunk: Buffer) => {
+          size += chunk.length;
+          if (size > MAX_BYTES) {
+            req.destroy();
+            resolve(null);
+            return;
+          }
+          data += chunk;
+        });
         res.on('end', () => {
           try {
-            resolve(JSON.parse(data).version ?? null);
+            const version = JSON.parse(data).version;
+            if (typeof version === 'string' && /^\d+\.\d+\.\d+$/.test(version)) {
+              resolve(version);
+            } else {
+              resolve(null);
+            }
           } catch {
             resolve(null);
           }
@@ -52,18 +66,12 @@ async function main() {
     process.exit(1);
   }
 
-  if (process.env.PROTOVIBE_UPDATED !== '1') {
-    const latest = await fetchLatestVersion();
-    if (latest && isNewerVersion(pkg.version, latest)) {
-      process.stdout.write(`\n  Updating ProtoVibe ${pkg.version} → ${latest}...\n\n`);
-      execSync('npm install -g protovibe@latest', { stdio: 'inherit' });
-      spawnSync('protovibe', process.argv.slice(2), {
-        stdio: 'inherit',
-        shell: true,
-        env: { ...process.env, PROTOVIBE_UPDATED: '1' },
-      });
-      process.exit(0);
-    }
+  const latest = await fetchLatestVersion();
+  if (latest && isNewerVersion(pkg.version, latest)) {
+    process.stdout.write(
+      `\n  A new version of ProtoVibe is available: ${pkg.version} → ${latest}\n` +
+      `  Run \`npm update -g protovibe\` to update.\n\n`
+    );
   }
 
   const terminalWidth = process.stdout.columns ?? 80;

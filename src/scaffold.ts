@@ -99,6 +99,18 @@ async function handleExistingProject(): Promise<string> {
   }
 
   const existingPath = resolve(String(rawPath).trim().replace(/^~/, homedir()));
+
+  const claudeMdPath = join(existingPath, 'CLAUDE.md');
+  if (existsSync(claudeMdPath)) {
+    const overwrite = await clack.confirm({
+      message: 'This project already has a CLAUDE.md. ProtoVibe will replace it to inject its workflow. Overwrite?',
+    });
+    if (clack.isCancel(overwrite) || !overwrite) {
+      clack.cancel('Exiting ProtoVibe. Your CLAUDE.md was not changed.');
+      process.exit(0);
+    }
+  }
+
   writeAnalyseTemplates(existingPath);
   clack.outro(`✓ Ready to analyse ${existingPath}`);
   return existingPath;
@@ -152,6 +164,16 @@ async function handleNewProject(): Promise<string> {
     }
 
     if (conflictChoice === 'continue') {
+      const claudeMdPath = join(targetDir, 'CLAUDE.md');
+      if (existsSync(claudeMdPath)) {
+        const overwrite = await clack.confirm({
+          message: 'This project already has a CLAUDE.md. Overwrite it with the ProtoVibe configuration?',
+        });
+        if (clack.isCancel(overwrite) || !overwrite) {
+          clack.cancel('Exiting ProtoVibe. Your CLAUDE.md was not changed.');
+          process.exit(0);
+        }
+      }
       writeProtovibeTemplates(targetDir);
       clack.outro(`✓ Ready to continue at ${targetDir}`);
       return targetDir;

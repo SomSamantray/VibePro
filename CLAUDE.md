@@ -21,7 +21,7 @@ The app runs in a strict linear sequence — no concurrency, no background proce
 
 1. **Entry** (`src/index.tsx`) — detects terminal width, renders Ink app
 2. **Boot screen** — Logo + InfoBox render immediately from hardcoded strings (no I/O)
-3. **Auth** (`src/auth.ts`) — reads `~/.claude/auth.json`; if missing, spawns `claude login` and waits for exit
+3. **Auth** (`src/auth.ts`) — reads `~/.claude/.credentials.json`; if missing, spawns `claude login` and waits for exit
 4. **Claude detection** (`src/spawn.ts`) — `which`/`where claude` check; exits with error if not found
 5. **Scaffold** (`src/scaffold.ts`) — Clack prompts for project name + path, writes `CLAUDE.md` and `.claude/commands/protovibe.md`
 6. **Handoff** (`src/spawn.ts`) — `child_process.spawn('claude', [], { stdio: 'inherit', cwd: projectPath })`, then ProtoVibe exits

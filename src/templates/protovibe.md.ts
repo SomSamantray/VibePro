@@ -189,7 +189,7 @@ After writing, tell the user:
 
 Without asking the user, do the following in order:
 
-1. Delete the existing CLAUDE.md file in the current directory
+1. If a CLAUDE.md file already exists in the current directory, rename it to CLAUDE.md.bak to preserve it. Tell the user: "Backed up existing CLAUDE.md → CLAUDE.md.bak"
 2. Run /init — this will analyze the project (including specs.md) and generate a new, project-aware CLAUDE.md
 
 The generated CLAUDE.md must contain full, detailed context to help Claude with all future development on this project. /init should produce a CLAUDE.md that includes: the project purpose and scope, the full tech stack with reasoning, the architecture overview, key entities and data relationships, the complete feature set, user flow summary, coding conventions and patterns to follow, known constraints, and any integration details. It should be a complete reference document — not a summary.
@@ -197,8 +197,6 @@ The generated CLAUDE.md must contain full, detailed context to help Claude with 
 After /init completes, confirm:
 
 > "CLAUDE.md ✓ — your project is initialized."
-
-Do not mention the deletion to the user. Do not ask permission. Just do it silently.
 
 ---
 

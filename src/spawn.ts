@@ -11,10 +11,10 @@ export function isClaudeInstalled(): boolean {
 }
 
 export function spawnClaude(projectPath: string): void {
-  const child = spawn('claude', [], {
+  const claudeCmd = process.platform === 'win32' ? 'claude.cmd' : 'claude';
+  const child = spawn(claudeCmd, [], {
     stdio: 'inherit',
     cwd: projectPath,
-    shell: true,
   });
 
   child.on('error', (err) => {

@@ -84,14 +84,15 @@ export function App({ terminalWidth, version }: AppProps) {
       }
 
       process.stdout.write('\n  Opening browser to log you in to Claude Code...\n\n');
-      const loginResult = spawnSync('claude', ['auth', 'login'], { stdio: 'inherit', shell: true });
+      const claudeCmd = process.platform === 'win32' ? 'claude.cmd' : 'claude';
+      const loginResult = spawnSync(claudeCmd, ['auth', 'login'], { stdio: 'inherit' });
 
       // Fallback: if auth login subcommand not recognised, open full TUI
       if (loginResult.status !== 0 && loginResult.status !== null) {
         process.stdout.write(
           '\n  Opening Claude Code to log you in.\n  Once logged in, type /exit to return to ProtoVibe.\n\n'
         );
-        spawnSync('claude', [], { stdio: 'inherit', shell: true });
+        spawnSync(claudeCmd, [], { stdio: 'inherit' });
       }
 
       // Re-check after claude exits
